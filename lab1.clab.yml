@@ -12,8 +12,23 @@ topology:
       env:
         VCPU: 6
         RAM: 20480
+    cisco_c8000v:
+      image: tkdebnath/cisco_c8000v:17.16.01a
+      env:
+        VCPU: 2
+        RAM: 6144
+    cisco_n9kv:
+      image: tkdebnath/cisco_n9kv:9300-10.5.2
+      env:
+        VCPU: 2
+        RAM: 8192
 
   nodes:
+    ### Routers ###
+    router1:
+      kind: cisco_c8000v
+      # startup-config: configs/fabric/router1.cfg
+      mgmt-ipv4: 172.80.80.20
     ### Core Switches ###
     core1:
       kind: cisco_cat9kv
@@ -61,6 +76,7 @@ topology:
       group: access-switch
 
   links:
+    - endpoints: ["router1:Gi2", "core1:Gi1/0/2"]
     - endpoints: ["core1:Gi1/0/1", "access1:Ethernet1/1"]
     - endpoints: ["access1:Ethernet1/10", "access2:Gi1"]
     - endpoints: ["access2:Gi2", "access3:Gi1"]
