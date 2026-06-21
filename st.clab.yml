@@ -24,7 +24,7 @@ topology:
         RAM: 8192
 
     linux:
-      image: ubuntu:20.04
+      image: ubuntu:latest
       env:
         VCPU: 2
         RAM: 2048
@@ -42,24 +42,14 @@ topology:
       group: core
       # startup-config: configs/fabric/spine1.cfg
       mgmt-ipv4: 172.80.80.21
-    core2:
-      kind: cisco_cat9kv
-      group: core
-      # startup-config: configs/fabric/spine2.cfg
-      mgmt-ipv4: 172.80.80.22
 
     ### Access Switches ###
     access1:
-      kind: cisco_cat9kv
-      # startup-config: configs/fabric/leaf1.cfg
-      mgmt-ipv4: 172.80.80.23
-      group: access-switch
-    access2:
       kind: cisco_n9kv
       # startup-config: configs/fabric/leaf2.cfg
       mgmt-ipv4: 172.80.80.24
       group: access-switch
-    access3:
+    access2:
       kind: cisco_vios
       type: switch
       image: tkdebnath/cisco_vios:L2-20200929
@@ -72,17 +62,14 @@ topology:
       kind: linux
       mgmt-ipv4: 172.80.80.26
       exec:
+        - apt-get update && apt-get install -y locales
+        - apt install openssh-server -y
+        - systemctl enable --now ssh
         - ip address add 172.20.20.2/24 dev eth1
-        - ip -6 address add 2002::172:20:20:2/96 dev eth1
       group: client
 
   links:
-    - endpoints: ["core1:Gi1/0/1", "access1:Gi1/0/1"]
-    - endpoints: ["core1:Gi1/0/2", "access2:Ethernet1/1"]
-    - endpoints: ["core1:Gi1/0/3", "access3:Gi0"]
-    - endpoints: ["core2:Gi1/0/1", "access1:Gi1/0/2"]
-    - endpoints: ["core2:Gi1/0/2", "access2:Ethernet1/2"]
-    - endpoints: ["core2:Gi1/0/3", "access3:Gi1"]
-    - endpoints: ["access1:Gi1/0/3", "client1:eth1"]
+    - endpoints: ["core1:Gi1/0/1", "access1:Ethernet1/1"]
+    - endpoints: ["core1:Gi1/0/2", "access2:Gi0"]
+    - endpoints: ["access1:Ethernet1/10", "client1:eth1"]
     - endpoints: ["router1:Gi3", "core1:Gi1/0/4"]
-    - endpoints: ["router1:Gi4", "core2:Gi1/0/4"]
